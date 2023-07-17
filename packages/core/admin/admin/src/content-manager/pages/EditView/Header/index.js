@@ -74,7 +74,7 @@ const Header = ({
     primaryAction = (
       <Flex gap={2}>
         {hasDraftAndPublish && (
-          <Button disabled startIcon={<Check />} variant="secondary">
+          <Button disabled startIcon={<Check />} variant="primary">
             {formatMessage({ id: 'app.utils.publish', defaultMessage: 'Publish' })}
           </Button>
         )}
@@ -107,8 +107,8 @@ const Header = ({
             disabled={didChangeData}
             loading={isPublishButtonLoading}
             onClick={onClick}
-            startIcon={<Check />}
-            variant="secondary"
+            startIcon={isPublished ? null : <Check />}
+            variant={isPublished ? "secondary" : "primary"}
           >
             {formatMessage(pubishButtonLabel)}
           </Button>
