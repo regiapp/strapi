@@ -1,7 +1,5 @@
 'use strict';
 
-// FIXME
-/* eslint-disable import/extensions */
 const Sentry = require('@sentry/node');
 
 const createSentryService = (strapi) => {
@@ -25,10 +23,28 @@ const createSentryService = (strapi) => {
       try {
         // Don't init Sentry if no DSN was provided
         if (settings.dsn) {
+          const userConfig = settings.init || {};
+
+          // Handle v6 -> v7 changed config options
+          if (userConfig.whitelistUrls) {
+            userConfig.allowUrls = userConfig.whitelistUrls;
+            delete userConfig.whitelistUrls;
+            strapi.log.warn('Sentry: whitelistUrls is deprecated, use allowUrls instead');
+          }
+          if (userConfig.blacklistUrls) {
+            userConfig.denyUrls = userConfig.blacklistUrls;
+            delete userConfig.blacklistUrls;
+            strapi.log.warn('Sentry: blacklistUrls is deprecated, use denyUrls instead');
+          }
+
           Sentry.init({
             dsn: settings.dsn,
+            tracesSampleRate: settings.tracesSampleRate,
             environment: strapi.config.get('environment'),
-            ...settings.init,
+            integrations: settings.tracesSampleRate
+              ? [new Sentry.Integrations.Http({ tracing: true }), new Sentry.Integrations.GraphQL()]
+              : undefined,
+            ...userConfig,
           });
           // Store the successfully initialized Sentry instance
           instance = Sentry;
@@ -49,6 +65,11 @@ const createSentryService = (strapi) => {
      */
     getInstance() {
       return instance;
+    },
+
+    /** If tracing (performance monitoring) is enabled. */
+    hasTracingEnabled() {
+      return !!settings.tracesSampleRate;
     },
 
     /**
