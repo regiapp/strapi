@@ -182,6 +182,18 @@ module.exports = {
 
     const sanitizedBody = await sanitizeFn(body);
 
+    const entityAttributes = entity.attributes || {};
+
+    Object.keys(entityAttributes).forEach((attributeName) => {
+      if (entity.attributes[attributeName].type === 'media') {
+        if (entity[attributeName]) {
+          sanitizedBody[attributeName] = entity[attributeName];
+        } else {
+          sanitizedBody[attributeName] = null;
+        }
+      }
+    });
+
     const clonedEntity = await entityManager.clone(entity, sanitizedBody, model);
 
     ctx.body = await permissionChecker.sanitizeOutput(clonedEntity);
