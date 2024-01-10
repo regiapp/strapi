@@ -360,22 +360,15 @@ describe('Content-Type', () => {
     });
 
     const tests = [
-      [undefined, ['firstname', 'car']],
-      [null, ['firstname', 'car']],
+      [undefined, []],
+      [null, []],
       [
         ['firstname', 'car'],
         ['firstname', 'car'],
       ],
-      [['restaurant.description'], ['restaurant.description', 'firstname', 'car']],
-      [['restaurant.address'], ['firstname', 'restaurant.address.country', 'car']],
-      [
-        ['restaurant.address.city'],
-        ['restaurant.address.city', 'firstname', 'restaurant.address.country', 'car'],
-      ],
-      [
-        ['firstname', 'restaurant.address.country', 'car'],
-        ['firstname', 'restaurant.address.country', 'car'],
-      ],
+      [['restaurant.description'], ['restaurant.description']],
+      [['restaurant.address'], ['restaurant.address']],
+      [['restaurant.address.city'], ['restaurant.address.city']],
     ];
 
     test.each(tests)('requiredOnly : %p -> %p', (fields, expectedFields) => {
@@ -386,10 +379,7 @@ describe('Content-Type', () => {
             subject: 'user',
             properties: { fields },
           },
-        ]),
-        {
-          requiredOnly: true,
-        }
+        ])
       );
       expect(res).toEqual([
         {
