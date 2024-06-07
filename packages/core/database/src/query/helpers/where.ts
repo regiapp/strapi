@@ -450,8 +450,11 @@ const applyWhere = (qb: Knex.QueryBuilder, where: Where) => {
 };
 
 const fieldLowerFn = (qb: Knex.QueryBuilder) => {
-  // Postgres requires string to be passed
-  if (qb.client.config.client === 'postgres') {
+  // Postgres & Cockroach requires string to be passed
+  if (
+    typeof qb.client.config.client === 'string' &&
+    ['postgres', 'cockroachdb'].includes(qb.client.config.client)
+  ) {
     return 'LOWER(CAST(?? AS VARCHAR))';
   }
 
