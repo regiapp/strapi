@@ -1,4 +1,4 @@
-import { setCreatorFields, async, errors } from '@strapi/utils';
+import { setCreatorFields, async, errors, contentTypes } from '@strapi/utils';
 
 import type { Modules, UID } from '@strapi/types';
 
@@ -35,7 +35,10 @@ const createDocument = async (ctx: any, opts?: Options) => {
   const sanitizeFn = async.pipe(pickPermittedFields, setCreator as any);
   const sanitizedBody = await sanitizeFn(body);
 
-  const { locale, status = 'draft' } = await getDocumentLocaleAndStatus(body);
+  const {
+    locale,
+    status = contentTypes.hasDraftAndPublish(strapi.getModel(model)) ? 'draft' : 'published',
+  } = await getDocumentLocaleAndStatus(body);
 
   return documentManager.create(model, {
     data: sanitizedBody as any,
